@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+
+.ant-form-item-label { 
+    font-weight: bold;
+}
