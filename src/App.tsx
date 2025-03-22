@@ -160,8 +160,9 @@ function App() {
                 resetText: "Limpiar",
               },
             }}
-            initialValues={{
-              network: "10.0.0.0",
+            initialValues={
+              {
+                /*  network: "10.0.0.0",
               quantity: 3,
               subnet_mask: "8",
               subnet_mask_new: "24",
@@ -186,8 +187,9 @@ function App() {
                   name: "Router 3",
                   routers_used: ["router_1", "router_2"],
                 },
-              ],
-            }}
+              ], */
+              }
+            }
             form={form}
             onFinish={onFinish}
           >
@@ -417,20 +419,22 @@ function App() {
 
         <Divider />
 
-        <Card className="mt-8 p-8">
-          <Typography.Title level={4}>
-            Configuracion de routers
-          </Typography.Title>
+        {Object.values(router || {}).length > 0 && (
+          <Card className="mt-8 p-8">
+            <Typography.Title level={4}>
+              Configuracion de routers
+            </Typography.Title>
 
-          {Object.keys(router || {}).map((routerId) => {
-            return (
-              <RoutersConfiguration
-                messageApi={messageApi}
-                router={router![routerId]}
-              />
-            );
-          })}
-        </Card>
+            {Object.keys(router || {}).map((routerId) => {
+              return (
+                <RoutersConfiguration
+                  messageApi={messageApi}
+                  router={router![routerId]}
+                />
+              );
+            })}
+          </Card>
+        )}
       </div>
     </Flex>
   );
