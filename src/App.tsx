@@ -510,7 +510,7 @@ function RoutersConfiguration(props: RoutersConfiguration) {
       <code ref={copyRef}>
         enable <br />
         config terminal <br /> <br />
-        hostname {props.router.name} <br />
+        hostname {props.router.name.replace(/\s/g, "_")} <br />
         #configuracion de las interfaces <br /> <br />
         {Object.keys(props.router.routers_connected || []).map((routerId) => {
           const connection = props.router.routers_connected[routerId];
