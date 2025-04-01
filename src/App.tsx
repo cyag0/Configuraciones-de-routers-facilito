@@ -157,6 +157,8 @@ function App() {
     messageApi.success("Configuraciones generadas correctamente");
   }
 
+  const routersToRender = Object.values(router || {});
+
   return (
     <Flex justify="center" className="bg-gray-200 min-h-screen" align="center">
       {contextHolder}
@@ -446,7 +448,7 @@ function App() {
             <Table
               className="my-4"
               pagination={false}
-              dataSource={Object.values(router || {})}
+              dataSource={routersToRender}
               columns={[
                 //router name, network, mask converter, interface, router conected name, ip address
                 {
@@ -458,10 +460,33 @@ function App() {
                   title: "Network",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
-                  render: (routers_connected: RoutersConnected) => {
-                    return Object.values(routers_connected).map(
-                      (connection) => {
-                        return <div className="p-2">{connection.network}</div>;
+                  render: (
+                    routers_connected: RoutersConnected,
+                    record,
+                    index
+                  ) => {
+                    const routersRendered = routersToRender.slice(0, index);
+                    return Object.keys(routers_connected).map(
+                      (connectionKey: string) => {
+                        const connection = routers_connected[connectionKey];
+
+                        const routerIsAlreadyRendered = routersRendered.some(
+                          (router) => {
+                            return router.id === connectionKey;
+                          }
+                        );
+
+                        if (routerIsAlreadyRendered) return null;
+
+                        return (
+                          <div
+                            className={`p-2 ${
+                              routerIsAlreadyRendered && "bg-red-500"
+                            }`}
+                          >
+                            {connection.network}
+                          </div>
+                        );
                       }
                     );
                   },
@@ -470,19 +495,50 @@ function App() {
                   title: "Interface",
                   dataIndex: "interface_used",
                   key: "interface_used",
-                  render: (interface_used: Interfaces[]) => {
-                    return interface_used.map((interfaceUsed) => {
-                      return <div className="p-2">{interfaceUsed}</div>;
-                    });
+                  render: (interface_used: Interfaces[], record, index) => {
+                    const routersRendered = routersToRender.slice(0, index);
+
+                    return Object.keys(record.routers_connected).map(
+                      (connectionKey, index) => {
+                        const connection =
+                          record.routers_connected[connectionKey];
+
+                        const routerIsAlreadyRendered = routersRendered.some(
+                          (router) => {
+                            return router.id === connectionKey;
+                          }
+                        );
+                        const interfaceUsed = interface_used[index];
+
+                        if (routerIsAlreadyRendered) return null;
+
+                        return <div className="p-2">{interfaceUsed}</div>;
+                      }
+                    );
                   },
                 },
                 {
                   title: "Dispositivos conectados",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
-                  render: (routers_connected: RoutersConnected) => {
+                  render: (
+                    routers_connected: RoutersConnected,
+                    record,
+                    index
+                  ) => {
+                    const routersRendered = routersToRender.slice(0, index);
+
                     return Object.keys(routers_connected).map((connection) => {
+                      const routerIsAlreadyRendered = routersRendered.some(
+                        (router) => {
+                          return router.id === connection;
+                        }
+                      );
+
                       const name = router![connection].name;
+
+                      if (routerIsAlreadyRendered) return null;
+
                       return <div className="p-2">{name}</div>;
                     });
                   },
@@ -491,10 +547,25 @@ function App() {
                   title: "Interfaz 2",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
-                  render: (routers_connected: RoutersConnected, _router) => {
+                  render: (
+                    routers_connected: RoutersConnected,
+                    _router,
+                    index
+                  ) => {
+                    const routersRendered = routersToRender.slice(0, index);
+
                     return Object.keys(routers_connected).map((routerId) => {
                       const connection =
                         router![routerId].routers_connected[_router!.id] || {};
+
+                      const routerIsAlreadyRendered = routersRendered.some(
+                        (router) => {
+                          return router.id === routerId;
+                        }
+                      );
+
+                      if (routerIsAlreadyRendered) return null;
+
                       return (
                         <div className="p-2">
                           {connection.interface || "Nulo corregir"}
@@ -508,9 +579,26 @@ function App() {
                   title: "IP Address",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
-                  render: (routers_connected: RoutersConnected) => {
-                    return Object.values(routers_connected).map(
-                      (connection) => {
+                  render: (
+                    routers_connected: RoutersConnected,
+                    record,
+                    index
+                  ) => {
+                    const routersRendered = routersToRender.slice(0, index);
+
+                    return Object.keys(routers_connected).map(
+                      (connectionKey) => {
+                        const connection =
+                          router![connectionKey].routers_connected[record.id] ||
+                          {};
+                        const routerIsAlreadyRendered = routersRendered.some(
+                          (router) => {
+                            return router.id === connectionKey;
+                          }
+                        );
+
+                        if (routerIsAlreadyRendered) return null;
+
                         return (
                           <div className="p-2">{connection.ipAddress}</div>
                         );
