@@ -525,7 +525,11 @@ function App() {
                   key: "checkbox",
                   render: (routers_connected) => {
                     return Object.values(routers_connected).map((router) => {
-                      return <Checkbox />;
+                      return (
+                        <div className="p-2">
+                          <Checkbox />
+                        </div>
+                      );
                     });
                   },
                 },
