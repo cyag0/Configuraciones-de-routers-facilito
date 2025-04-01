@@ -49,7 +49,7 @@ type Router = {
   as_number?: number;
 };
 
-type Interfaces = "s0/0/0" | "s0/0/1" | "s0/1/0" | "s0/1/1";
+type Interfaces = "s0/0/0" | "s0/0/1" | "s0/1/0" | "s0/1/1" | "s0/2/0";
 
 type OnFinishValues = {
   network: string;
@@ -70,7 +70,13 @@ type RouterSelected = {
   routers_used: string[];
 };
 
-const interfaces = ["s0/0/0", "s0/0/1", "s0/1/0", "s0/1/1"] as Interfaces[];
+const interfaces = [
+  "s0/0/0",
+  "s0/0/1",
+  "s0/1/0",
+  "s0/1/1",
+  "s0/2/0",
+] as Interfaces[];
 
 function App() {
   const [form] = Form.useForm();
@@ -392,8 +398,8 @@ function App() {
                         placeholder={"Seleccione un router"}
                         label={"Routers conectados a este router"}
                         fieldProps={{
-                          maxTagCount: 4,
-                          maxTagPlaceholder: "Maximo 4 routers",
+                          maxTagCount: 5,
+                          maxTagPlaceholder: "Maximo 5 routers",
                         }}
                         options={(() => {
                           if (!routers) return [];
@@ -482,7 +488,7 @@ function App() {
                   },
                 },
                 {
-                  title: "IP Address",
+                  title: "Interfaz 2",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
                   render: (routers_connected: RoutersConnected, _router) => {
@@ -499,7 +505,7 @@ function App() {
                 },
 
                 {
-                  title: "Interfaz 2",
+                  title: "IP Address",
                   dataIndex: "routers_connected",
                   key: "routers_connected",
                   render: (routers_connected: RoutersConnected) => {
@@ -517,8 +523,10 @@ function App() {
                   title: "Check",
                   dataIndex: "routers_connected",
                   key: "checkbox",
-                  render: () => {
-                    return <Checkbox />;
+                  render: (routers_connected) => {
+                    return Object.values(routers_connected).map((router) => {
+                      return <Checkbox />;
+                    });
                   },
                 },
               ]}
