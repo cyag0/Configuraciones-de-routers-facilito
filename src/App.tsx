@@ -9,12 +9,14 @@ import {
 } from "@ant-design/pro-components";
 import {
   Card,
+  Checkbox,
   Col,
   Divider,
   Empty,
   Flex,
   Form,
   Row,
+  Table,
   Typography,
   message,
 } from "antd";
@@ -85,6 +87,8 @@ function App() {
       parseInt(values.subnet_mask_new)
     );
 
+    console.log(networks);
+
     const routersConfiguration: Routers = {};
     let currentNetworkIndex = 0;
 
@@ -143,6 +147,8 @@ function App() {
     });
 
     setRouter(routersConfiguration);
+
+    messageApi.success("Configuraciones generadas correctamente");
   }
 
   return (
@@ -385,6 +391,10 @@ function App() {
                         ]}
                         placeholder={"Seleccione un router"}
                         label={"Routers conectados a este router"}
+                        fieldProps={{
+                          maxTagCount: 4,
+                          maxTagPlaceholder: "Maximo 4 routers",
+                        }}
                         options={(() => {
                           if (!routers) return [];
 
@@ -424,6 +434,95 @@ function App() {
             <Typography.Title level={4}>
               Configuracion de routers
             </Typography.Title>
+
+            {/* Tabla de direccionamiento */}
+
+            <Table
+              className="my-4"
+              pagination={false}
+              dataSource={Object.values(router || {})}
+              columns={[
+                //router name, network, mask converter, interface, router conected name, ip address
+                {
+                  title: "Router",
+                  dataIndex: "name",
+                  key: "name",
+                },
+                {
+                  title: "Network",
+                  dataIndex: "routers_connected",
+                  key: "routers_connected",
+                  render: (routers_connected: RoutersConnected) => {
+                    return Object.values(routers_connected).map(
+                      (connection) => {
+                        return <div className="p-2">{connection.network}</div>;
+                      }
+                    );
+                  },
+                },
+                {
+                  title: "Interface",
+                  dataIndex: "interface_used",
+                  key: "interface_used",
+                  render: (interface_used: Interfaces[]) => {
+                    return interface_used.map((interfaceUsed) => {
+                      return <div className="p-2">{interfaceUsed}</div>;
+                    });
+                  },
+                },
+                {
+                  title: "Dispositivos conectados",
+                  dataIndex: "routers_connected",
+                  key: "routers_connected",
+                  render: (routers_connected: RoutersConnected) => {
+                    return Object.keys(routers_connected).map((connection) => {
+                      const name = router![connection].name;
+                      return <div className="p-2">{name}</div>;
+                    });
+                  },
+                },
+                {
+                  title: "IP Address",
+                  dataIndex: "routers_connected",
+                  key: "routers_connected",
+                  render: (routers_connected: RoutersConnected, _router) => {
+                    return Object.keys(routers_connected).map((routerId) => {
+                      const connection =
+                        router![routerId].routers_connected[_router!.id] || {};
+                      return (
+                        <div className="p-2">
+                          {connection.interface || "Nulo corregir"}
+                        </div>
+                      );
+                    });
+                  },
+                },
+
+                {
+                  title: "Interfaz 2",
+                  dataIndex: "routers_connected",
+                  key: "routers_connected",
+                  render: (routers_connected: RoutersConnected) => {
+                    return Object.values(routers_connected).map(
+                      (connection) => {
+                        return (
+                          <div className="p-2">{connection.ipAddress}</div>
+                        );
+                      }
+                    );
+                  },
+                },
+
+                {
+                  title: "Check",
+                  dataIndex: "routers_connected",
+                  key: "checkbox",
+                  render: () => {
+                    return <Checkbox />;
+                  },
+                },
+              ]}
+            />
 
             {Object.keys(router || {}).map((routerId) => {
               return (
@@ -535,7 +634,10 @@ function RoutersConfiguration(props: RoutersConfiguration) {
           props.router.dhcp.map((dhcp, index) => {
             return (
               <>
-                ip dhcp pool lan_{index + 1}
+                interface gi0/{index} <br />
+                ip address {dhcp.firstAddress} {convertMask(dhcp.mask)} <br />
+                no shutdown <br /> exit <br /> <br /> ip dhcp pool lan_
+                {index + 1}
                 <br />
                 network {dhcp.network} {convertMask(dhcp.mask)} <br />
                 default-router {dhcp.firstAddress} <br /> <br />
@@ -546,6 +648,11 @@ function RoutersConfiguration(props: RoutersConfiguration) {
         {props.router.protocol && (
           <>
             router {props.router.protocol} {props.router.as_number || ""} <br />
+            {props.router.protocol === "rip" && (
+              <>
+                version 2 <br />
+              </>
+            )}
             {networks.map((network) => {
               return (
                 <>
